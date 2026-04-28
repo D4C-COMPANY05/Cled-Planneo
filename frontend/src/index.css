@@ -110,3 +110,18 @@
   .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
   .safe-top { padding-top: max(env(safe-area-inset-top), 0.5rem); }
 }
+
+
+/* ── Android keyboard fix ────────────────────────────────────────────────────
+   dvh = dynamic viewport height (rétrécit quand le clavier s'ouvre)
+   Sans ça, les dialogs/modals débordent hors écran sur Android              */
+html, body, #root {
+  height: 100dvh;
+}
+
+/* Empêche le contenu derrière le clavier d'être invisible */
+[data-radix-popper-content-wrapper],
+[role="dialog"] {
+  max-height: 92dvh !important;
+}
+
