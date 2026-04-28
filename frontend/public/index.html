@@ -25,26 +25,6 @@
         <title>Cled's Plannéo — Plan. Sleep. Move.</title>
         <script>window.addEventListener("error",function(e){if(e.error instanceof DOMException&&e.error.name==="DataCloneError"&&e.message&&e.message.includes("PerformanceServerTiming")){e.stopImmediatePropagation();e.preventDefault()}},true);</script>
         <script src="https://assets.emergent.sh/scripts/emergent-main.js"></script>
-      <script>
-      // Fix clavier Android dans WebView/Capacitor
-      (function() {
-        function applyViewportFix() {
-          var root = document.getElementById('root');
-          if (!root) return;
-          var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-          root.style.height = vh + 'px';
-          root.style.overflow = 'auto';
-        }
-        document.addEventListener('DOMContentLoaded', function() {
-          applyViewportFix();
-          if (window.visualViewport) {
-            window.visualViewport.addEventListener('resize', applyViewportFix);
-            window.visualViewport.addEventListener('scroll', applyViewportFix);
-          }
-          window.addEventListener('resize', applyViewportFix);
-        });
-      })();
-    </script>
   </head>
     <body>
         <noscript>You need to enable JavaScript to run this app.</noscript>
