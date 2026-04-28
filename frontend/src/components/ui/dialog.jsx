@@ -50,15 +50,17 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
         className={cn(
           "fixed z-50 w-full bg-background shadow-lg",
           "left-0 right-0 rounded-t-2xl",
-          "sm:left-[50%] sm:translate-x-[-50%] sm:max-w-lg sm:rounded-lg",
+          "sm:left-[50%] sm:bottom-auto sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:rounded-lg sm:max-h-[90vh]",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
           "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
           className
         )}
         style={{
+          // Ancré en bas de la zone visible, grandit vers le haut
+          bottom: 0,
           top: offsetTop,
-          height: height,           // occupe toute la hauteur visible → pas d'espace noire
+          maxHeight: height * 0.92,
           display: "flex",
           flexDirection: "column",
         }}
@@ -67,8 +69,17 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 rounded-full bg-border" />
         </div>
-        {/* Contenu scrollable — flex:1 pour prendre tout l'espace restant */}
-        <div style={{ overflowY: "scroll", flex: 1, padding: "0 1.5rem 2rem", WebkitOverflowScrolling: "touch" }}>
+        {/* Contenu scrollable */}
+        <div
+          style={{
+            overflowY: "auto",
+            flex: 1,
+            padding: "0 1.5rem 2rem",
+            // Force le scroll natif sur Android WebView
+            WebkitOverflowScrolling: "touch",
+            touchAction: "pan-y",
+          }}
+        >
           {children}
         </div>
         {/* Bouton fermer */}
