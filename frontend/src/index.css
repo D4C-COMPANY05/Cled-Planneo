@@ -112,6 +112,8 @@
 }
 
 
+
+
 /* ── Android keyboard fix ────────────────────────────────────────────────────
    dvh = dynamic viewport height (rétrécit quand le clavier s'ouvre)
    Sans ça, les dialogs/modals débordent hors écran sur Android              */
@@ -125,3 +127,15 @@ html, body, #root {
   max-height: 92dvh !important;
 }
 
+/* ── Android keyboard fix ──────────────────────────────────────────────── */
+#root {
+  /* visualViewport JS ajuste la height dynamiquement */
+  position: relative;
+  overflow: auto;
+}
+
+/* Les dialogs scrollent en interne, pas le body */
+[role="dialog"] {
+  max-height: 85vh;
+  overflow-y: auto;
+}
