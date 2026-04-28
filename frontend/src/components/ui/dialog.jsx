@@ -25,7 +25,6 @@ function useVisualViewport() {
     offsetTop: window.visualViewport?.offsetTop ?? 0,
   })
   const [vv, setVV] = React.useState(getVV)
-
   React.useEffect(() => {
     const vp = window.visualViewport
     if (!vp) return
@@ -37,15 +36,11 @@ function useVisualViewport() {
       vp.removeEventListener("scroll", update)
     }
   }, [])
-
   return vv
 }
 
 const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
   const { height, offsetTop } = useVisualViewport()
-  // Max 75% de la hauteur visible, sauf si clavier ouvert (height < 500) → 95%
-  const keyboardOpen = height < window.screen.height * 0.75
-  const maxH = keyboardOpen ? height * 0.95 : height * 0.75
 
   return (
     <DialogPortal>
@@ -63,17 +58,17 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
         )}
         style={{
           top: offsetTop,
-          height: maxH,
+          height: height,           // occupe toute la hauteur visible → pas d'espace noire
           display: "flex",
           flexDirection: "column",
         }}
         {...props}>
-        {/* Drag handle visuel */}
+        {/* Drag handle */}
         <div className="flex justify-center pt-3 pb-1 shrink-0">
           <div className="w-10 h-1 rounded-full bg-border" />
         </div>
-        {/* Contenu scrollable */}
-        <div style={{ overflowY: "auto", flex: 1, padding: "0 1.5rem 1.5rem" }}>
+        {/* Contenu scrollable — flex:1 pour prendre tout l'espace restant */}
+        <div style={{ overflowY: "scroll", flex: 1, padding: "0 1.5rem 2rem", WebkitOverflowScrolling: "touch" }}>
           {children}
         </div>
         {/* Bouton fermer */}
