@@ -19,39 +19,71 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={cn(
-        "fixed z-50 w-full bg-background shadow-lg duration-200",
-        // Mobile : bottom sheet fixé en bas, hauteur 75vh, scroll interne
-        "bottom-0 left-0 right-0 rounded-t-2xl",
-        // Desktop : centré
-        "sm:bottom-auto sm:left-[50%] sm:top-[50%] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:max-w-lg sm:rounded-lg",
-        "data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
-        "sm:data-[state=closed]:zoom-out-95 sm:data-[state=open]:zoom-in-95",
-        "sm:data-[state=closed]:slide-out-to-left-1/2 sm:data-[state=closed]:slide-out-to-top-[48%]",
-        "sm:data-[state=open]:slide-in-from-left-1/2 sm:data-[state=open]:slide-in-from-top-[48%]",
-        className
-      )}
-      style={{ maxHeight: "75vh", display: "flex", flexDirection: "column" }}
-      {...props}>
-      {/* Zone scrollable */}
-      <div style={{ overflowY: "auto", flex: 1, padding: "1.5rem" }}>
-        {children}
-      </div>
-      {/* Bouton fermer — toujours visible en haut */}
-      <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
+// Hook qui suit la hauteur visible (réduit quand clavier ouvert)
+function useVisualViewportHeight() {
+  const [height, setHeight] = React.useState(
+    () => window.visualViewport?.height ?? window.innerHeight
+  )
+  const [offsetTop, setOffsetTop] = React.useState(
+    () => window.visualViewport?.offsetTop ?? 0
+  )
+
+  React.useEffect(() => {
+    const vv = window.visualViewport
+    if (!vv) return
+    const update = () => {
+      setHeight(vv.height)
+      setOffsetTop(vv.offsetTop)
+    }
+    vv.addEventListener("resize", update)
+    vv.addEventListener("scroll", update)
+    return () => {
+      vv.removeEventListener("resize", update)
+      vv.removeEventListener("scroll", update)
+    }
+  }, [])
+
+  return { height, offsetTop }
+}
+
+const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
+  const { height, offsetTop } = useVisualViewportHeight()
+
+  return (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={cn(
+          "fixed z-50 w-full bg-background shadow-lg duration-100",
+          "left-0 right-0 rounded-t-2xl",
+          "sm:left-[50%] sm:translate-x-[-50%] sm:max-w-lg sm:rounded-lg",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+          className
+        )}
+        style={{
+          // Se positionne toujours juste au-dessus du clavier
+          top: offsetTop,
+          maxHeight: height,
+          display: "flex",
+          flexDirection: "column",
+        }}
+        {...props}>
+        {/* Zone scrollable */}
+        <div style={{ overflowY: "auto", flex: 1, padding: "1.5rem" }}>
+          {children}
+        </div>
+        {/* Bouton fermer — toujours visible */}
+        <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+})
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({ className, ...props }) => (
