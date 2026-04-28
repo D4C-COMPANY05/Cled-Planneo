@@ -60,10 +60,10 @@ jobs:
         working-directory: frontend
         run: npx cap sync android
 
-      - name: Patch AndroidManifest — adjustNothing (fix clavier Android)
+      - name: Patch AndroidManifest — adjustPan (fix clavier Android)
         working-directory: frontend/android/app/src/main
         run: |
-          sed -i 's/android:name="\.MainActivity"/android:name=".MainActivity"\n            android:windowSoftInputMode="adjustNothing"/' AndroidManifest.xml
+          sed -i 's/android:name="\.MainActivity"/android:name=".MainActivity"\n            android:windowSoftInputMode="adjustPan"/' AndroidManifest.xml
           echo "=== Manifest patché ==="
           grep -A3 "MainActivity" AndroidManifest.xml
 
