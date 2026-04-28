@@ -63,7 +63,7 @@ jobs:
       - name: Patch AndroidManifest — adjustPan (fix clavier Android)
         working-directory: frontend/android/app/src/main
         run: |
-          sed -i 's/android:name="com.cled.planneo.MainActivity"/android:name="com.cled.planneo.MainActivity"\n            android:windowSoftInputMode="adjustPan"/' AndroidManifest.xml
+          sed -i 's/android:name="com.cled.planneo.MainActivity"/android:name="com.cled.planneo.MainActivity"\n            android:windowSoftInputMode="adjustNothing"/' AndroidManifest.xml
           echo "=== Manifest patché ==="
           grep -A2 "MainActivity" AndroidManifest.xml
 
