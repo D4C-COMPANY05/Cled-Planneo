@@ -19,35 +19,33 @@ const DialogOverlay = React.forwardRef(({ className, ...props }, ref) => (
 ))
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
-// Hook qui suit la hauteur visible (réduit quand clavier ouvert)
-function useVisualViewportHeight() {
-  const [height, setHeight] = React.useState(
-    () => window.visualViewport?.height ?? window.innerHeight
-  )
-  const [offsetTop, setOffsetTop] = React.useState(
-    () => window.visualViewport?.offsetTop ?? 0
-  )
+function useVisualViewport() {
+  const getVV = () => ({
+    height: window.visualViewport?.height ?? window.innerHeight,
+    offsetTop: window.visualViewport?.offsetTop ?? 0,
+  })
+  const [vv, setVV] = React.useState(getVV)
 
   React.useEffect(() => {
-    const vv = window.visualViewport
-    if (!vv) return
-    const update = () => {
-      setHeight(vv.height)
-      setOffsetTop(vv.offsetTop)
-    }
-    vv.addEventListener("resize", update)
-    vv.addEventListener("scroll", update)
+    const vp = window.visualViewport
+    if (!vp) return
+    const update = () => setVV({ height: vp.height, offsetTop: vp.offsetTop })
+    vp.addEventListener("resize", update)
+    vp.addEventListener("scroll", update)
     return () => {
-      vv.removeEventListener("resize", update)
-      vv.removeEventListener("scroll", update)
+      vp.removeEventListener("resize", update)
+      vp.removeEventListener("scroll", update)
     }
   }, [])
 
-  return { height, offsetTop }
+  return vv
 }
 
 const DialogContent = React.forwardRef(({ className, children, ...props }, ref) => {
-  const { height, offsetTop } = useVisualViewportHeight()
+  const { height, offsetTop } = useVisualViewport()
+  // Max 75% de la hauteur visible, sauf si clavier ouvert (height < 500) → 95%
+  const keyboardOpen = height < window.screen.height * 0.75
+  const maxH = keyboardOpen ? height * 0.95 : height * 0.75
 
   return (
     <DialogPortal>
@@ -55,7 +53,7 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed z-50 w-full bg-background shadow-lg duration-100",
+          "fixed z-50 w-full bg-background shadow-lg",
           "left-0 right-0 rounded-t-2xl",
           "sm:left-[50%] sm:translate-x-[-50%] sm:max-w-lg sm:rounded-lg",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
@@ -64,18 +62,21 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
           className
         )}
         style={{
-          // Se positionne toujours juste au-dessus du clavier
           top: offsetTop,
-          maxHeight: height,
+          height: maxH,
           display: "flex",
           flexDirection: "column",
         }}
         {...props}>
-        {/* Zone scrollable */}
-        <div style={{ overflowY: "auto", flex: 1, padding: "1.5rem" }}>
+        {/* Drag handle visuel */}
+        <div className="flex justify-center pt-3 pb-1 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+        {/* Contenu scrollable */}
+        <div style={{ overflowY: "auto", flex: 1, padding: "0 1.5rem 1.5rem" }}>
           {children}
         </div>
-        {/* Bouton fermer — toujours visible */}
+        {/* Bouton fermer */}
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
@@ -87,7 +88,7 @@ const DialogContent = React.forwardRef(({ className, children, ...props }, ref) 
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({ className, ...props }) => (
-  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left", className)} {...props} />
+  <div className={cn("flex flex-col space-y-1.5 text-center sm:text-left pt-2 pb-1", className)} {...props} />
 )
 DialogHeader.displayName = "DialogHeader"
 
