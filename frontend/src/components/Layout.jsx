@@ -103,14 +103,14 @@ const Layout = () => {
       </header>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 pt-16 md:pt-0">
-        <div className="px-4 sm:px-8 py-6 md:py-12 max-w-7xl mx-auto pb-32 md:pb-12">
+      <main className="flex-1 min-w-0 pt-16 md:pt-0 relative">
+        <div className="px-4 sm:px-8 py-6 md:py-12 max-w-7xl mx-auto pb-32 md:pb-12 overflow-x-hidden">
           <Outlet />
         </div>
       </main>
 
       {/* Mobile bottom nav */}
-      <nav className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#FDFCFB]/95 backdrop-blur border-t border-border px-1.5 pt-1.5 pb-1.5 safe-bottom">
+      <nav style={{ zIndex: 99999 }} className="md:hidden fixed bottom-0 inset-x-0 bg-[#FDFCFB]/95 backdrop-blur border-t border-border px-1.5 pt-1.5 pb-1.5 safe-bottom">
         <div className="flex items-center justify-between gap-0.5">
           {mobileTabs.map(({ to, icon: Icon, testId, label }) => (
             <NavLink
