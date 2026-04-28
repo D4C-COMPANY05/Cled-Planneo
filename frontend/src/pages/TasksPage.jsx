@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash, EditPencil, Timer, StopCircle } from "iconoir-react";
+import { Plus, Trash, EditPencil, Timer, Pause } from "iconoir-react";
 import { toast } from "sonner";
 import { format, parseISO } from "date-fns";
 
@@ -408,7 +408,7 @@ const TasksPage = () => {
                         : "text-ink-muted hover:text-sage"
                       }`}
                     >
-                      {isRunning ? <StopCircle className="w-4 h-4" /> : <Timer className="w-4 h-4" />}
+                      {isRunning ? <Pause className="w-4 h-4" /> : <Timer className="w-4 h-4" />}
                     </button>
                   )}
                   <button data-testid={`edit-task-${task.id}`} onClick={() => openEdit(task)} className="p-1.5 text-ink-muted hover:text-sage">
