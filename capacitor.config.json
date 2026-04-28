@@ -8,6 +8,6 @@
   "android": {
     "allowMixedContent": false,
     "backgroundColor": "#FAF8F5",
-    "windowSoftInputMode": "adjustNothing"
+    "windowSoftInputMode": "adjustPan"
   }
 }
