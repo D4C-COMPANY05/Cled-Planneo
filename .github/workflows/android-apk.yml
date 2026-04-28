@@ -60,6 +60,13 @@ jobs:
         working-directory: frontend
         run: npx cap sync android
 
+      - name: Patch AndroidManifest — adjustPan (fix clavier Android)
+        working-directory: frontend/android/app/src/main
+        run: |
+          sed -i 's/android:name="com.cled.planneo.MainActivity"/android:name="com.cled.planneo.MainActivity"\n            android:windowSoftInputMode="adjustPan"/' AndroidManifest.xml
+          echo "=== Manifest patché ==="
+          grep -A2 "MainActivity" AndroidManifest.xml
+
       - name: Grant gradlew execute
         working-directory: frontend/android
         run: chmod +x ./gradlew
