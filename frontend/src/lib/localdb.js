@@ -66,22 +66,60 @@ function calcDuration(bedtime, wake_time) {
 }
 
 // ── Recurring tasks generator (runs on app load) ──────────────────────────────
+// Maps day keys to JS getDay() values (0=Sun)
+const DAY_JS = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
 function generateRecurring() {
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
+  const todayDow = today.getDay(); // 0=Sun
   const tasks = read(KEYS.tasks, []);
   const parents = tasks.filter((t) => ["daily", "weekly", "monthly"].includes(t.recurrence) && !t.recurrence_parent_id);
 
   let changed = false;
   parents.forEach((p) => {
+    // Weekly with specific days — generate one occurrence per selected day that matches today
+    if (p.recurrence === "weekly") {
+      const days = p.recurrence_days && p.recurrence_days.length > 0
+        ? p.recurrence_days
+        : ["mon", "tue", "wed", "thu", "fri"]; // default weekdays if none selected
+      days.forEach((dayKey) => {
+        const jsDay = DAY_JS[dayKey];
+        if (jsDay === undefined) return;
+        // Find the date of this weekday in the current week (Mon-based)
+        const d = new Date(today);
+        const diff = jsDay - todayDow;
+        d.setDate(d.getDate() + diff);
+        const expected = d.toISOString().slice(0, 10);
+        // Only generate for today or past days of this week (not future)
+        if (expected > todayStr) return;
+        const exists = tasks.some((t) => t.recurrence_parent_id === p.id && t.due_date === expected);
+        if (!exists) {
+          tasks.push({
+            id: uid(),
+            title: p.title,
+            description: p.description || "",
+            priority: p.priority || "medium",
+            status: "todo",
+            due_date: expected,
+            category: p.category || null,
+            tags: p.tags || [],
+            subtasks: [],
+            recurrence: "none",
+            recurrence_parent_id: p.id,
+            duration_minutes: p.duration_minutes || null,
+            created_at: nowIso(),
+            updated_at: nowIso(),
+          });
+          changed = true;
+        }
+      });
+      return;
+    }
+
     let expected;
     if (p.recurrence === "daily") expected = todayStr;
-    else if (p.recurrence === "weekly") {
-      const d = new Date(today);
-      const day = (d.getDay() + 6) % 7; // Monday-based
-      d.setDate(d.getDate() - day);
-      expected = d.toISOString().slice(0, 10);
-    } else if (p.recurrence === "monthly") {
+    else if (p.recurrence === "monthly") {
       expected = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10);
     } else return;
 
@@ -99,6 +137,7 @@ function generateRecurring() {
         subtasks: [],
         recurrence: "none",
         recurrence_parent_id: p.id,
+        duration_minutes: p.duration_minutes || null,
         created_at: nowIso(),
         updated_at: nowIso(),
       });
@@ -126,6 +165,8 @@ const tasks = {
       subtasks: (payload.subtasks || []).map((s) => ({ id: s.id?.startsWith("tmp-") || !s.id ? uid() : s.id, title: s.title, done: !!s.done })),
       recurrence: payload.recurrence || "none",
       recurrence_parent_id: payload.recurrence_parent_id || null,
+      recurrence_days: payload.recurrence_days || [],
+      duration_minutes: payload.duration_minutes || null,
       created_at: nowIso(),
       updated_at: nowIso(),
     };
