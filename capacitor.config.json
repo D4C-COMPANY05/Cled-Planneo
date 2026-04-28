@@ -1,0 +1,12 @@
+{
+  "appId": "com.cled.planneo",
+  "appName": "Cled's Plannéo",
+  "webDir": "frontend/build",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#FAF8F5"
+  }
+}
